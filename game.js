@@ -56,12 +56,20 @@ function addEvents(){
 //catch the input
 function keydown(event){
 	const keyName = event.key;
-
+	let handled = false;
 	if(playing){
 		switch(keyName){
-			case controlKeys.leftkey: , 
-//TODO-next here
-		} 
+			case controlKeys.left: move(moveDirections.LEFT); break;
+			case controlKeys.right: move(moveDirections.RIGHT); break;
+			case controlKeys.up: rotate();break;
+			case controlKeys.down: move(moveDirections.DOWN); break; 
+	}
+	else if (event.key == ''){
+		startPlay();
+		handled = true;
+	}
+	if(handled){
+		event.preventDefault();
 	}
 }
 
