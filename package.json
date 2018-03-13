@@ -1,8 +1,11 @@
 {
-	"nane":"tetris",
-	"author":"qzyse2017",
-	"license":"MIT",
-	"dependencies":{
-		
-	}
+  "nane": "tetris",
+  "author": "qzyse2017",
+  "version": "0.1.0",
+  "license": "MIT",
+  "main": "main.js",
+  "dependencies": {},
+  "devDependencies": {
+    "electron": "^1.8.3"
+  }
 }
