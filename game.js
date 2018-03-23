@@ -27,11 +27,12 @@ const shape04 = {state: [0x4444,0x0F00,0x2222,0x00F0],color: 'yellow'}
 const shape121L = {state: [0x4620,0x0360,0x0264,0x0C60],color: 'navy'};
 const shape121R = {state: [0x2640,0x0630，0x0264,0x0C60],color: 'maroon'}
 const Pieces = [shape04,shape13,shape22,shape31,shape121L,shape121R];
+const Color = [white: 0 ,red: 1,blue: 2,green: 3,yellow: 4,nay: 5,maroon: 6];
 
 
 //variables
 var playing;
-var dropingPiece = ;	
+var dropingPiece = {};//	
 var changedTarget = [];//loaction:x,y;newColor:str
 var newChange = [];
 var blockWidth,blockHeight;
@@ -39,13 +40,13 @@ var piece = {};
 var nextPiece = {};
 var allState = [];
 var perState = {};//color,hasBlock
-var topHeightPerX = new Int32Array(screenWidth);
 var topPieceVertexPerX = new Int32Array(4);
 var score = 0;
 
 //variables for next piece preview
 var nextChange = [];
-var nextChangeTarget = [];
+
+var globalRecords = new Int32Array[screenWidth * screenHeight];
 
 
 //game loop
@@ -107,12 +108,7 @@ function updateScreen(){
 	newChange.forEach((item,index,array) => {
 		drawBlock(item);
 	});
-	/**let changedNum = newChange.length;
-	for(let i = 0;i < changedNum;i++){
-		drawBlock(newChange[i]);
-	}**/
 	context.restore();
-
 }
 
 function autoDrop(){
@@ -137,6 +133,15 @@ function lose(){
 	playing = false;
 }
 
+function reset(){
+	score = 0;
+	for(let i = 0;i < screenHeight;i++){
+		for(let j = 0;j < screenWidth;j++){
+			drawBlock(i,j,"white");
+			globalRecords[i * screenWidth + j] = "white";
+		}
+	}
+}
 function randomChooseNext(){
 	let randomNum = Math.random()
 	nextPiece.location.x = randomNum * screenWidth;
@@ -148,65 +153,163 @@ function randomChooseNext(){
 
 //function to handle blocks
 function dropNext(){
-
+	randomChooseNext();
 	drawNext();
-
-	//TODO-last
-	//generate next piece and show it at left
+	dropingPiece.location = nextPreviewPiece.location;
+	dropingPiece.type = nextPreviewPiece.type;
+	dropingPiece.state = nextPreviewPiece.state;
 }
 
 function draw(){
 	updateScreen();
 	autoDrop();
-	//checkGround
-	//clearLines-TODO
 	window.requestAnimationFrame(draw);
-
 }
 
 function drawNext(){
 	let padding = (nextSize - movingPieceSize) / 2;
 	nctx.save();
-	let startPointX = padding * blockWidth;
-	let startPointY = padding * blockHeight;
+	let startPointX = padding;
+	let startPointY = padding;
 	nctx.translate(startPointX,startPointY);
 	nextPreviewPiece = {};
 	nextPreviewPiece.currentState = nextPiece.currentState;
 	nextPreviewPiece.type = nextPiece.type;
-	nextPreviewPiece.location = {x: startPointX ,y:startPointY };
-	nctx.clear(startPointX,startPointY,movingPieceSize,movingPieceSize);
+	nextPreviewPiece.location = {x: startPointX,
+								y:startPointY };
+	nctx.clear(startPointX,startPointY,
+		movingPieceSize,movingPieceSize);
 	drawPiece(nextPreviewPiece,nctx);
 	nctx.restore();	
-
 }
 
-//while rotating and moving,rewrite the block buffer
 function rotate(){
-//TODO
+	for(let i = 0;i < movingPieceSize;i++){
+		for(let j = 0;j < movingPieceSize;j++){
+			let globalX = dropingPiece.location.x + i;
+			let globalY = dropingPiece.location.y + j;
+			if(globalRecords[globalX * screenWidth + globalY] != Color.white){
+				let color = "white";
+				if((0x8000 >> (i *movingPieceSize + j) & dropingPiece.state)){
+					color = dropingPiece.type.color;
+				}
+				drawBlock(globalX,globalY,color);
+			}
+		}
+	}
 	onGroundCheck();
-
 }
+
 function move(inputDirection){
-	var x = current.x;
-	var y = current.y;
-//TODO
-	onGroundCheck();
+	switch(){
+		case moveDirections.LEFT:
+			if(moveValid(-1,0)){
+				shiftChangeColorBuffer(-1,0);
+			}
+			break;
+			
+		case moveDirections.RIGHT: 	
+			if(moveValid(1,0)){
+				shiftChangeColorBuffer(1,0);
+			}
+			break;   
+		
+		case moveDirections.DOWN: 	
+			if(moveValid(0,1)){
+				shiftChangeColorBuffer(0,1);
+			}
+		}
+		onGroundCheck();
+	}
+
+function shiftChangeColorBuffer(changeX,chnageY){
+	let oldPosX = dropingPiece.location.x;
+	let oldPosY = dropingPiece.location.y;
+	dropingPiece.location.x += changeX;
+	dropingPiece.location.y += chnageY;
+	for(let i = 0;i < movingPieceSize;i++){
+		for(let j = 0;j < movingPieceSize;j++){
+			newColor = "white";
+			if((0x8000 >> (i * movingPieceSize + j)) & dropingPiece.state){
+				newColor = dropingPiece.type.color;
+			}
+			drawBlock(oldPosX + i,oldPosY + j,newColor);
+			drawBlock(dropingPiece.location.x + i,dropingPiece.location.y + j,newColor);
+		}
+	}
 }
 
-function cleanLine(){
-	//TODO
-	//update 
-	//topHeightPerX
-	//drop next
-	//update score
+function moveValid(changeX,changeY){
+	let expectedX = dropingPiece.location.x + changeX;
+	let expectedY = dropingPiece.location.y + changeY;
+	let valid = true;
+	for(let i = 0;i < movingPieceSize;i++){//rows
+		for(let j = 0;j < movingPieceSize;j++){	//columns
+			let detectLoc =  (expectedX + i) * screenWidth + (j + expectedY);
+			let pieceBlockFull = (0x8000 >> (i * movingPieceSize + j) & dropingPiece.state);	
+			let globalRecordsFull = globalRecords[detectLoc]
+			if(globalRecordsFull &&  pieceBlockFull){
+				valid = false;
+			}
+	return valid;
+}
+
+function cleanLines(dropingPieceX,dropingPieceY){
+	for(let i = movingPieceSize + dropingPieceX - 1;i >= dropingPieceX ;i--){
+		let j;
+		for(j = 0;j < screenWidth;j++){
+			if(globalRecords[i * screenWidth + j] == white){
+				break;
+			}
+		}
+		if(j == screenWidth){
+			for(j = 0;j < screenWidth;j++){
+				newColor = 
+				globalRecords[i * screenWidth + j] = globalRecords[(i - 1) * screenWidth + j];
+				drawBlock(i,j,numColor2Str(globalRecords[(i - 1) * screenWidth + j]))
+				score += 10;
+			}
+		}
+	}
 	
 }
 function onGroundCheck(){
-	//piece.location
-	//piece.state
-//TODO
-//cleanline
+	let onGround = moveValid(0,1);	
+	if(onGround){
+		for(let i = 0;i < movingPieceSize;i++){
+			for(let j = 0;j < movingPieceSize;j++){
+				if((0x8000 >> (i * movingPieceSize + j)) & dropingPiece.state){
+					let globalX = dropingPiece.location.x + i;
+					let globalY = dropingPiece.location.y + j;
+					globalRecords[globalX * screenWidth + screenHeight] = strColor2Num(dropingPiece.type.color);
+				}
+			}
+		}
+		cleanLines(dropingPiece.location.x,dropingPiece.location.y);
+	}
+	return onGround;
+}
 
+function strColor2Num(strColor){
+	colorNum = Color.white;
+	if(strColor == "red"){ colorNum = Color.red;}
+	else if(strColor == "blue"){colorNum = Color.blue;}
+	else if(strColor == "green"){colorNum = Color.green;}
+	else if(strColor == "yellow"){colorNum = Color.yellow;}
+	else if(strColor == "navy"){colorNum = Color.navy;}
+	else if(strColor == "maroon"){colorNum = Color.maroon;}
+	return colorNum;
+}
+
+function numColor2Str(numColor){
+	strColor = "white";
+	if(numColor == 1){ strColor = "red"; }
+	else if(numColor == 2){ strColor = "blue";}
+	else if(numColor == 3){ strColor = "green";}
+	else if(numColor == 4){ strColor = "yellow";}
+	else if(numColor == 5){ strColor = "navy";}
+	else if(numColor == 6){ strColor = "maroon";}
+	return strColor;
 }
 
 function drawPiece(pieceTarget,context){
@@ -217,29 +320,32 @@ function drawPiece(pieceTarget,context){
 	let initPos = 0x8000;
 	for(let i = 0;i< 16;i++){
 		if(initPos & state){
-			let drawX = ;
-			let drawY = ;
+			let drawX = (i / 4) + x;
+			let drawY = (i % 4) + y;
 			drawBlock(drawX,drawY,color);
 		}
 		initPos >> 1;
-
 	}
-
-
-
 }
 
 function drawBlock(x,y,color){
-	//TODO
 	context.fillStyle = block.color;
-	let x = block.location.x * blockWidth;
-	let y = block.location.y * blockHeight;
+	lengthX = x * blockWidth;
+	lengthY = y * blockHeight;
 	//context.save();
 	context.fillRect(x,y,blockWidth,blockHeight);
 	if(block.color !== 'white'){
 		context.strokeRect(x,y,blockWidth,blockHeight);
 	}
 	//context.restore();
+}
+
+function initGlobalRecords(){
+	for(let i = 0;i < screenHeight;i++){
+		for(let j = 0;j < screenWidth;j++){
+			globalRecords[i * screenWidth + j] = Color.white;
+		}
+	}
 }
 
 run();
