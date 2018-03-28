@@ -1,9 +1,9 @@
 'use strict'
 
 //constants
-const canvas = getElementById('çanvas'),
+const canvas = document.getElementById('canvas'),
 	context = canvas.getContext('2d');
-const nextCanvas = getElementById('next_canvas'),
+const nextCanvas = document.getElementById('next_canvas'),
 	nctx = nextCanvas.getContext('2d');
 
 const controlKeys = {left: "Left",right: "Right" ,up: "Up",down: "Down",esc: "Esc"};
@@ -25,9 +25,9 @@ const shape13 = {state: [0x44C0,0x4700,0x0322,0x00C2],color: 'blue'}
 const shape22 = {state: [0x0660,0x0660,0x0660,0x0660],color: 'green'}
 const shape04 = {state: [0x4444,0x0F00,0x2222,0x00F0],color: 'yellow'}
 const shape121L = {state: [0x4620,0x0360,0x0264,0x0C60],color: 'navy'};
-const shape121R = {state: [0x2640,0x0630，0x0264,0x0C60],color: 'maroon'}
+const shape121R = {state: [0x2640,0x0630,0x0264,0x0C60],color: 'maroon'};
 const Pieces = [shape04,shape13,shape22,shape31,shape121L,shape121R];
-const Color = [white: 0 ,red: 1,blue: 2,green: 3,yellow: 4,nay: 5,maroon: 6];
+const Color = {white: 0 ,red: 1,blue: 2,green: 3,yellow: 4,navy: 5,maroon: 6};
 
 
 //variables
@@ -37,22 +37,30 @@ var changedTarget = [];//loaction:x,y;newColor:str
 var newChange = [];
 var blockWidth,blockHeight;
 var piece = {};
+var newColor;
 var nextPiece = {};
 var allState = [];
 var perState = {};//color,hasBlock
 var topPieceVertexPerX = new Int32Array(4);
 var score = 0;
+var nextPreviewPiece = {};
+var now;
+var last;
 
 //variables for next piece preview
 var nextChange = [];
 
-var globalRecords = new Int32Array[screenWidth * screenHeight];
+var globalRecords = new Int32Array(screenWidth * screenHeight);
+
+
+run();
 
 
 //game loop
 function run(){
 	addEvents();
-	var last = now = timestamp();
+	now = timestamp();
+	last = now;
 	resize();
 	reset();
 	draw();
@@ -72,8 +80,9 @@ function keydown(event){
 			case controlKeys.right: move(moveDirections.RIGHT); handled = true; break;
 			case controlKeys.up: rotate(); handled = true; break;
 			case controlKeys.down: move(moveDirections.DOWN); handled = true; break; 
+		}
 	}
-	else if (event.key == ''){
+	else if (event.key == ' '){
 		startPlay();
 		handled = true;
 	}
@@ -87,13 +96,12 @@ function keydown(event){
 }
 
 function resize(event){
-	canvas.width canvas.clientWidth;
+	canvas.width = canvas.clientWidth;
 	canvas.height = canvas.clientHeight;
-	nextCanvas.width = canvas.clientWidth;
-	nextCanvas.height = canvas.clientHeight;
+	nextCanvas.width = nextCanvas.clientWidth;
+	nextCanvas.height = nextCanvas.clientHeight;
 	blockWidth = canvas.width / screenWidth;
 	blockHeight = canvas.height / screenHeight;
-	dropNext();
 }
 
 function timestamp(){
@@ -114,7 +122,7 @@ function updateScreen(){
 function autoDrop(){
 	if(playing){
 		now = timestamp();
-		dropLength = Math.min(1,(now - last));
+		let dropLength = Math.min(1,(now - last));
 		for(let i = 0;i < dropLength;i++){
 			move(moveDirections.DOWN);
 		}
@@ -123,7 +131,8 @@ function autoDrop(){
 }
 //for game logic
 function startPlay(){
-	hide('start');
+	let title = document.getElementById('start');
+	title.style.visibility = 'hidden';
 	reset();
 	playing = true;
 }
@@ -135,15 +144,18 @@ function lose(){
 
 function reset(){
 	score = 0;
+	randomChooseNext();
 	for(let i = 0;i < screenHeight;i++){
 		for(let j = 0;j < screenWidth;j++){
 			drawBlock(i,j,"white");
 			globalRecords[i * screenWidth + j] = "white";
 		}
 	}
+	dropNext();
 }
 function randomChooseNext(){
-	let randomNum = Math.random()
+	let randomNum = Math.random();
+	nextPiece.location = {};
 	nextPiece.location.x = randomNum * screenWidth;
 	nextPiece.location.y = randomNum * screenHeight;
 	let type = Math.floor(randomNum * Pieces.length);
@@ -157,7 +169,7 @@ function dropNext(){
 	drawNext();
 	dropingPiece.location = nextPreviewPiece.location;
 	dropingPiece.type = nextPreviewPiece.type;
-	dropingPiece.state = nextPreviewPiece.state;
+	dropingPiece.state = nextPreviewPiece.currentState;
 }
 
 function draw(){
@@ -172,12 +184,11 @@ function drawNext(){
 	let startPointX = padding;
 	let startPointY = padding;
 	nctx.translate(startPointX,startPointY);
-	nextPreviewPiece = {};
 	nextPreviewPiece.currentState = nextPiece.currentState;
 	nextPreviewPiece.type = nextPiece.type;
 	nextPreviewPiece.location = {x: startPointX,
 								y:startPointY };
-	nctx.clear(startPointX,startPointY,
+	nctx.clearRect(startPointX,startPointY,
 		movingPieceSize,movingPieceSize);
 	drawPiece(nextPreviewPiece,nctx);
 	nctx.restore();	
@@ -201,7 +212,7 @@ function rotate(){
 }
 
 function move(inputDirection){
-	switch(){
+	switch(inputDirection){
 		case moveDirections.LEFT:
 			if(moveValid(-1,0)){
 				shiftChangeColorBuffer(-1,0);
@@ -220,7 +231,7 @@ function move(inputDirection){
 			}
 		}
 		onGroundCheck();
-	}
+}
 
 function shiftChangeColorBuffer(changeX,chnageY){
 	let oldPosX = dropingPiece.location.x;
@@ -252,19 +263,21 @@ function moveValid(changeX,changeY){
 				valid = false;
 			}
 	return valid;
+        }
+    }
 }
 
 function cleanLines(dropingPieceX,dropingPieceY){
 	for(let i = movingPieceSize + dropingPieceX - 1;i >= dropingPieceX ;i--){
 		let j;
 		for(j = 0;j < screenWidth;j++){
-			if(globalRecords[i * screenWidth + j] == white){
+			if(globalRecords[i * screenWidth + j] == Color.white){
 				break;
 			}
 		}
 		if(j == screenWidth){
 			for(j = 0;j < screenWidth;j++){
-				newColor = 
+				newColor = 'white';
 				globalRecords[i * screenWidth + j] = globalRecords[(i - 1) * screenWidth + j];
 				drawBlock(i,j,numColor2Str(globalRecords[(i - 1) * screenWidth + j]))
 				score += 10;
@@ -329,13 +342,13 @@ function drawPiece(pieceTarget,context){
 }
 
 function drawBlock(x,y,color){
-	context.fillStyle = block.color;
-	lengthX = x * blockWidth;
-	lengthY = y * blockHeight;
+	context.fillStyle = color;
+	let lengthX = x * blockWidth;
+	let lengthY = y * blockHeight;
 	//context.save();
-	context.fillRect(x,y,blockWidth,blockHeight);
-	if(block.color !== 'white'){
-		context.strokeRect(x,y,blockWidth,blockHeight);
+	context.fillRect(lengthX,lengthY,blockWidth,blockHeight);
+	if(color !== 'white'){
+		context.strokeRect(lengthX,lengthY,blockWidth,blockHeight);
 	}
 	//context.restore();
 }
@@ -348,4 +361,3 @@ function initGlobalRecords(){
 	}
 }
 
-run();

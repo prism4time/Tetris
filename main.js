@@ -8,7 +8,7 @@ let win
 
 function createWindow () {
   // Create the browser window.
-  win = new BrowserWindow({width: 800, height: 600,icon: __dirname + '/assets/icon.ico'})
+  win = new BrowserWindow({width: 800, height: 600})
   win.setMenu(null);
 
   // and load the index.html of the app.
@@ -17,6 +17,8 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
+win.webContents.openDevTools()
+
 
   // Open the DevTools.
   //win.webContents.openDevTools()
