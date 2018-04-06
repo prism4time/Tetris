@@ -1,34 +1,7 @@
 'use strict'
 
-//constants
-const canvas = document.getElementById('canvas'),
-	context = canvas.getContext('2d');
-const nextCanvas = document.getElementById('next_canvas'),
-	nctx = nextCanvas.getContext('2d');
-
-const controlKeys = {left: "Left",right: "Right" ,up: "Up",down: "Down",esc: "Esc"};
-const moveDirections = {LEFT:0,
-					RIGHT:1,
-					UP:2,
-					DOWN:3};
-
-const screenHeight = 25;//use block number to measure it
-const screenWidth = 10;
-const nextSize = 5;
-const movingPieceSize = 4;
-
-//use 16 bits to measure the pieces' shape,and present them in HEX 
-//convert the bits of the first line to the first HEX number,and so as others
-//the state of each block shows the initial state and rotation after 90,180,270 degrees' rotate
-const shape31 = {state: [0x88C0,0x7400,0x0311,0x002C],color: 'red'}
-const shape13 = {state: [0x44C0,0x4700,0x0322,0x00C2],color: 'blue'}
-const shape22 = {state: [0x0660,0x0660,0x0660,0x0660],color: 'green'}
-const shape04 = {state: [0x4444,0x0F00,0x2222,0x00F0],color: 'yellow'}
-const shape121L = {state: [0x4620,0x0360,0x0264,0x0C60],color: 'navy'};
-const shape121R = {state: [0x2640,0x0630,0x0264,0x0C60],color: 'maroon'};
-const Pieces = [shape04,shape13,shape22,shape31,shape121L,shape121R];
-const Color = {white: 0 ,red: 1,blue: 2,green: 3,yellow: 4,navy: 5,maroon: 6};
-
+var constant = require(./constant);
+var constant = require(./constant);
 
 //variables
 var playing;
@@ -53,48 +26,6 @@ var nextChange = [];
 var globalRecords = new Int32Array(screenWidth * screenHeight);
 
 
-run();
-
-
-//game loop
-function run(){
-	addEvents();
-	now = timestamp();
-	last = now;
-	resize();
-	reset();
-	draw();
-}
-function addEvents(){
-	document.addEventListener('keydown',keydown,false);
-	window.addEventListener('resize',resize,false);
-}
-
-//catch the input
-function keydown(event){
-	const keyName = event.key;
-	let handled = false;
-	if(playing){
-		switch(keyName){
-			case controlKeys.left: move(moveDirections.LEFT); handled = true; break;
-			case controlKeys.right: move(moveDirections.RIGHT); handled = true; break;
-			case controlKeys.up: rotate(); handled = true; break;
-			case controlKeys.down: move(moveDirections.DOWN); handled = true; break; 
-		}
-	}
-	else if (event.key == ' '){
-		startPlay();
-		handled = true;
-	}
-	else if (event.key == controlKeys.esc){
-		lose()
-		handled =true;
-	}
-	if(handled){
-		event.preventDefault();
-	}
-}
-
 function resize(event){
 	canvas.width = canvas.clientWidth;
 	canvas.height = canvas.clientHeight;
@@ -114,7 +45,7 @@ function updateScreen(){
 
 	context.save();
 	newChange.forEach((item,index,array) => {
-		drawBlock(item);
+		renderBlock(item);
 	});
 	context.restore();
 }
@@ -341,6 +272,17 @@ function drawPiece(pieceTarget,context){
 	}
 }
 
+function renderBlock(item){
+	context.fillStyle = color;
+	let lengthX = x * blockWidth;
+	let lengthY = y * blockHeight;
+	//context.save();
+	context.fillRect(lengthX,lengthY,blockWidth,blockHeight);
+	if(color !== 'white'){
+		context.strokeRect(lengthX,lengthY,blockWidth,blockHeight);
+	}
+	//todo -make some change
+}
 function drawBlock(x,y,color){
 	context.fillStyle = color;
 	let lengthX = x * blockWidth;
@@ -350,8 +292,10 @@ function drawBlock(x,y,color){
 	if(color !== 'white'){
 		context.strokeRect(lengthX,lengthY,blockWidth,blockHeight);
 	}
+	//todo - push it to buffer
 	//context.restore();
 }
+
 
 function initGlobalRecords(){
 	for(let i = 0;i < screenHeight;i++){
