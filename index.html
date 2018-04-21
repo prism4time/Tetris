@@ -1,22 +1,61 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Tetris in Electron</title>
-	<style type="text/css"></style>
+  <meta charset="utf-8">
+
+  <link rel="stylesheet" href="assets/css/variable.css">
+  <link rel="stylesheet" href="assets/css/global.css">
+  <link rel="stylesheet" href="assets/css/nav.css">
+  <link rel="stylesheet" href="assets/css/setting.css">
+  <link rel="stylesheet" href="assets/css/history.css">
+  <link rel="stylesheet" href="assets/css/section.css"
+  
+  <link rel="import" href="sections/history.html">
+  <link rel="import" href="sections/settings.html"> 
+  <link rel="import" href="sections/game.html">  
 </head>
 <body>
-	<div id="tetris">
-    <div id="menu">
-      <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
-      <p><canvas id="next_canvas"></canvas></p>
-      <p>score <span id="score">00000</span></p>
-      <p>rows <span id="rows">0</span></p>
-      <p><span id="reset">Press ESC to reset</span></p>
+  <nav class="nav js-nav is-shown">
+    <header class="nav-header">
+      <h1 class="nav-title"><strong>Tetris</strong> built on Electron</h1>
+    </header>
+
+    <div class="nav-item u-category-game">
+      <h5 class="nav-category">
+        New Game
+      </h5>
+      <button type="button" id="button-game-start" 
+      class="nav-button" data-section= "game">
+        Start A New Game
+      </button>
+    </div>
+    
+    <div class="nav-item u-category-setting">
+      <h5 class="nav-category">
+        Setting
+      </h5>
+      <button type="button" id="button-game-level" 
+      class="nav-button" data-section="setting">
+        Set <em>Game Level</em>
+      </button>
     </div>
 
-    <canvas id="canvas" height = "500" width="200">
-    </canvas>
-  </div>
-<script type="text/javascript" src="game.js"></script>
+    <div class="nav-item u-category-history">
+      <h5 class="nav-category">
+        History
+      </h5>
+      <button type="button" id="buttonl-user-history" 
+      class="nav-button" data-section="history">
+        See <em>History Score</em>
+      </button>
+    </div> 
+  </nav>
+  <main class="content js-content"></main>
+
+  <script>
+    require('./assets/imports')
+    require('./assets/nav')
+    require('./assets/demo-btns')
+  </script>
 </body>
 </html>
