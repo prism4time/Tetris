@@ -1,9 +1,9 @@
 {
-  "nane": "tetris",
+  "name": "tetris",
   "author": "xdaqun",
   "version": "0.1.0",
   "license": "MIT",
-  "main": "app/main.js",
+  "main": "main.js",
   "dependencies": {},
   "devDependencies": {
     "electron": "^1.8.3"
