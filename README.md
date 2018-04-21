@@ -19,4 +19,4 @@ npm start
   - [x] basic tetris
   - [x] simple control panel 
   - [ ] shift between different difficulty levels 
-  - [ ] see 
+  - [ ] see history scores
