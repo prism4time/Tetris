@@ -1,6 +1,6 @@
 'use strict'
 
-var renderer = require('./renderer');
+var renderer = require('./render-process/renderer');
 run();
 
 //game loop

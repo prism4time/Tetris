@@ -1,0 +1,23 @@
+<template class="task-template">
+    <section id="game-section" class="section js-section u-category-game">
+        <head>
+            <meta charset="utf-8">
+        </head>
+        <body>
+            <div id="tetris">
+                    <div id="menu">
+                        <p id="start"><a href="javascript:play();">Press Space to Play.</a></p>
+                        <p><canvas id="next_canvas"></canvas></p>
+                        <p>score <span id="score">00000</span></p>
+                        <p>rows <span id="rows">0</span></p>
+                        <p><span id="reset">Press ESC to reset</span></p>
+                    </div>
+                    
+                    <canvas id="canvas" height = "500" width="200">
+                    </canvas>
+            </div>
+        </body>
+        <script type="text/javascript" src="./render-process/game.js"></script>
+    </section>
+</template>
+    
