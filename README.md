@@ -20,3 +20,7 @@ npm start
   - [x] simple control panel 
   - [ ] shift between different difficulty levels 
   - [ ] see history scores
+
+## demo
+![playing pic](./assets/img/screenShot1.PNG)
+
