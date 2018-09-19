@@ -22,10 +22,10 @@ const movingPieceSize = 4;
 //convert the bits of the first line to the first HEX number,and so as others
 //the state of each block shows the initial state and rotation after 90,180,270 degrees' rotate
 const shape31 = {state: [0x88C0,0x7400,0x0311,0x002E],color: 'red'}
-const shape13 = {state: [0x44C0,0x4700,0x0622,0x00E2],color: 'blue'}
+const shape13 = {state: [0x44C0,0x4700,0x0322,0x00E2],color: 'blue'}
 const shape22 = {state: [0x0660,0x0660,0x0660,0x0660],color: 'green'}
 const shape04 = {state: [0x4444,0x0F00,0x2222,0x00F0],color: 'yellow'}
-const shape121L = {state: [0x4620,0x0360,0x0264,0x0C60],color: 'navy'};
+const shape121L = {state: [0x4620,0x0360,0x0462,0x06C0],color: 'navy'};
 const shape121R = {state: [0x2640,0x0630,0x0264,0x0C60],color: 'maroon'};
 const Pieces = [shape04,shape13,shape22,shape31,shape121L,shape121R];
 const Color = {white: 0 ,red: 1,blue: 2,green: 3,yellow: 4,navy: 5,maroon: 6};
