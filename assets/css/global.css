@@ -112,6 +112,10 @@ kbd {
 }
 
 
+canvas {
+  border: 2px solid rgb(130,130,130);
+}
+
 /* Utilities ---------------------------- */
 
 .u-avoid-clicks {
@@ -162,3 +166,4 @@ kbd {
 .hljs:active {
   outline: 1px solid transparent;
 }
+   
