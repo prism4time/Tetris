@@ -159,6 +159,7 @@ function dropNext(){
 //moving and changing
 function rotate(){
 	dropingPiece.stateNum = (dropingPiece.stateNum + 1) % 4;
+	//Check whether the rotation is valid
 	for(let i = 0;i < movingPieceSize;i++){
 		for(let j = 0;j < movingPieceSize;j++){
 			let globalX = dropingPiece.location.x + i;
@@ -263,7 +264,7 @@ function shiftChangeColorBuffer(changeX,changeY){
 
 }
 
-function moveValid(changeX,changeY){
+function moveValid(changeX,changeY) {
 	let expectedX = dropingPiece.location.x + changeX;
 	let expectedY = dropingPiece.location.y + changeY;
 	let valid = true;
@@ -300,27 +301,32 @@ function moveValid(changeX,changeY){
     return valid;
 }
 
+//draw a piece's new state while it is not on ground
+function drawNewState() {
+	for(let i = 0;i < movingPieceSize;i++){
+		for(let j = 0;j < movingPieceSize;j++){
+			if((0x8000 >> (i * movingPieceSize + j)) & dropingPiece.type.state[dropingPiece.stateNum]){
+				let globalX = dropingPiece.location.x + j;
+				let globalY = dropingPiece.location.y + i;
+				globalRecords[globalY * screenWidth + globalX] = strColor2Num(dropingPiece.type.color);
+				drawBlock(globalX,globalY,dropingPiece.type.color);
+			}
+		}
+	}
+}
+
 function onGroundCheck(){
 	let notOnGround = moveValid(0,1);	
 	if(!notOnGround){
-		for(let i = 0;i < movingPieceSize;i++){
-			for(let j = 0;j < movingPieceSize;j++){
-				if((0x8000 >> (i * movingPieceSize + j)) & dropingPiece.type.state[dropingPiece.stateNum]){
-					let globalX = dropingPiece.location.x + j;
-					let globalY = dropingPiece.location.y + i;
-					globalRecords[globalY * screenWidth + globalX] = strColor2Num(dropingPiece.type.color);
-					drawBlock(globalX,globalY,dropingPiece.type.color);
-				}
-			}
-		}
-		cleanLines(dropingPiece.location.x,dropingPiece.location.y + 1);
+		drawNewState();
+		cleanLines(dropingPiece.location.y);
 		dropNext();
 	}
 	return !notOnGround;
 }
 
 
-function cleanLines(dropingPieceX,dropingPieceY){
+function cleanLines(dropingPieceY){
 	for(let i = Math.min(movingPieceSize + dropingPieceY - 1,screenHeight - 1);i >= dropingPieceY ;i--){
 		let j;
 		for(j = 0;j < screenWidth;j++){
