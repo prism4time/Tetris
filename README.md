@@ -15,7 +15,8 @@ npm start
 - Further Development
   - modify the 'package.json' to add more dependencies and use 'npm install' to update your local repository.
   - modify the 'scripts' part in 'package.json' to let it support more commands.
-- TODO
+  - uncomment ```win.webContents.openDevTools()``` in `main.js` for debugging
+- TODO 
   - [x] basic tetris
   - [x] simple control panel 
   - [ ] shift between different difficulty levels 
