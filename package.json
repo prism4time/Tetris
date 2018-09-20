@@ -1,6 +1,6 @@
 {
   "name": "tetris",
-  "author": "xdaqun",
+  "author": "zyck",
   "version": "0.1.0",
   "license": "MIT",
   "main": "main.js",
@@ -10,7 +10,7 @@
   "devDependencies": {
     "electron": "^1.8.3"
   },
-  "scripts":{
-    "start":"electron ."
+  "scripts": {
+    "start": "electron ."
   }
 }

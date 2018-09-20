@@ -57,6 +57,7 @@ var globalRecords = new Int32Array(screenWidth * screenHeight);
 //controller part
 function keydown(event){
 	const keyName = event.key;
+	console.log(keyName);	console.log(keyName);
 	let handled = false;
 	if(playing){
 		switch(keyName){
@@ -65,7 +66,7 @@ function keydown(event){
 			case controlKeys.up: rotate(); handled = true; break;
 			case controlKeys.down: move(moveDirections.DOWN); handled = true; break; 
 		}
-		if (event.key == controlKeys.esc){
+		if (keyName == controlKeys.esc){
 			lose()
 			handled =true;
 		}
@@ -127,15 +128,8 @@ function autoDrop(){
 
 function reset(){
 	score = 0;
-	context.clearRect(0,0,context.width,context.height);
 	randomChooseNext();
-	for(let i = 0;i < screenHeight;i++){
-		for(let j = 0;j < screenWidth;j++){
-			drawBlock(i,j,"white");
-			globalRecords[i * screenWidth + j] = Color.white;
-		}
-	}
-	changedTarget = [];
+	resetScreen(context);
 }
 
 function randomChooseNext(){
@@ -227,14 +221,24 @@ function drawNext(){
 	nctx.restore();	
 }
 
-function updateScreen(){
-	newChange = changedTarget.slice(0);
-	changedTarget = [];
+function resetScreen(canvasContext) {
 	context.save();
-	newChange.forEach((item,index,array) => {
+	canvasContext.fillStyle = "white";
+	canvasContext.clearRect(0, 0, screenWidth * blockWidth, screenHeight * blockHeight);
+	canvasContext.fillRect(0, 0, screenWidth * blockWidth, screenHeight * blockHeight);
+	context.restore();
+}
+
+function updateScreen(){
+	if(playing) {
+		newChange = changedTarget.slice(0);
+		changedTarget = [];
+		newChange.forEach((item,index,array) => {
 		renderBlock(item,context);
 	});
-	context.restore();
+	} else {
+		resetScreen(context);
+	}
 }
 
 
@@ -399,16 +403,15 @@ function drawPiece(pieceTarget){
 }
 
 function renderBlock(item,canvasContext){
+	context.save();
 	canvasContext.fillStyle = item.color;
 	let lengthX = item.x * blockWidth;
 	let lengthY = item.y * blockHeight;
-	//context.save();
 	canvasContext.clearRect(lengthX,lengthY,blockWidth,blockHeight);
 	canvasContext.fillRect(lengthX,lengthY,blockWidth,blockHeight);
-	/*if(item.color !== 'white'){
-		canvasContext.strokeRect(lengthX,lengthY,blockWidth,blockHeight);
-	}*/
+	context.restore();
 }
+
 function drawBlock(x,y,color){
 	let item = {};
 	item.x = x;

@@ -12,6 +12,6 @@ function run(){
 }
 
 function addEvents(){
-	window.addEventListener('keydown',renderer.keydown,false);
-	window.addEventListener('resize',renderer.resize,false);
+	window.addEventListener('keydown',renderer.keydown);
+	window.addEventListener('resize',renderer.resize);
 }

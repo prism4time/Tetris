@@ -17,11 +17,9 @@ function createWindow () {
     protocol: 'file:',
     slashes: true
   }))
-//win.webContents.openDevTools()
-
-
   // Open the DevTools.
-  //win.webContents.openDevTools()
+  win.webContents.openDevTools()
+
 
   // Emitted when the window is closed.
   win.on('closed', () => {
